@@ -36,10 +36,10 @@ def flash_text(label, text_list, index=0):
     if label.winfo_exists():
         label.config(
             text=text_list[index % len(text_list)],
-            fg=random.choice(["red", "white", "#FF5555", "#FF0000", "#FF3300", "#880000"]),
-            font=("Courier", random.randint(50, 120), "bold")
+            fg=random.choice(["red", "white", "#FF5555", "#FF0000"]),
+            font=("Courier", random.randint(50, 100), "bold")
         )
-        flash_id = root.after(random.randint(50, 200), flash_text, label, text_list, index + 1)
+        flash_id = root.after(random.randint(80, 250), flash_text, label, text_list, index + 1)
         flash_ids.append(flash_id)
 
 def shake_window():
@@ -52,25 +52,25 @@ def shake_window():
 def play_terrifying_sound():
     if os.name == "nt":
         def sound_horror():
-            for _ in range(90):
-                winsound.Beep(random.randint(600, 3000), random.randint(100, 400))
-                time.sleep(random.uniform(0.01, 0.1))
-            for _ in range(50):
-                winsound.Beep(random.randint(50, 400), 700)
-                winsound.Beep(random.randint(1200, 3000), 150)
-                time.sleep(random.uniform(0.05, 0.2))
             for _ in range(60):
-                winsound.Beep(random.randint(30, 2000), random.randint(300, 700))
+                winsound.Beep(random.randint(800, 2500), random.randint(100, 300))
+                time.sleep(random.uniform(0.01, 0.1))
+            for _ in range(30):
+                winsound.Beep(random.randint(80, 300), 600)
+                winsound.Beep(random.randint(1000, 2000), 100)
+                time.sleep(random.uniform(0.05, 0.2))
+            for _ in range(45):
+                winsound.Beep(random.randint(50, 1500), random.randint(200, 600))
                 time.sleep(random.uniform(0.02, 0.1))
-            winsound.Beep(50, 7000)
+            winsound.Beep(60, 4000)
         threading.Thread(target=sound_horror, daemon=True).start()
 
 def fake_progress(progress, value=0):
     if value <= 100 and progress.winfo_exists():
-        progress["value"] = value + random.randint(0, 10)
+        progress["value"] = value + random.randint(0, 15)
         progress["style"] = random.choice(["red.Horizontal.TProgressbar", "default.Horizontal.TProgressbar"])
         root.update()
-        root.after(25, fake_progress, progress, value + 1)
+        root.after(15, fake_progress, progress, value + 1)
 
 def dramatic_popup(message, delay):
     popup = tk.Toplevel(bg="#300000")
@@ -80,11 +80,31 @@ def dramatic_popup(message, delay):
     tk.Label(
         popup,
         text=message,
-        font=("Courier", random.randint(28, 60), "bold"),
-        fg=random.choice(["red", "white", "#FF0000", "#FF6600", "#880000"]),
+        font=("Courier", random.randint(24, 50), "bold"),
+        fg=random.choice(["red", "white", "#FF0000"]),
         bg="#300000"
     ).pack(pady=100)
     popup.after(delay, popup.destroy)
+
+# --- Windows Error Message Meme ---
+
+def spawn_error_message():
+    def error_box():
+        while True:
+            try:
+                x = random.randint(0, root.winfo_screenwidth() - 200)
+                y = random.randint(0, root.winfo_screenheight() - 100)
+                msg = tk.Toplevel(root)
+                msg.geometry(f"200x100+{x}+{y}")
+                msg.overrideredirect(True)
+                msg.configure(bg="white")
+                tk.Label(msg, text="❌ Critical Error", fg="black", bg="white", font=("Arial", 10, "bold")).pack(pady=10)
+                msg.after(1500, msg.destroy)
+                winsound.PlaySound("SystemHand", winsound.SND_ALIAS | winsound.SND_ASYNC)
+                time.sleep(random.uniform(0.1, 0.3))
+            except:
+                break
+    threading.Thread(target=error_box, daemon=True).start()
 
 # --- FAKE BSOD ---
 
@@ -94,7 +114,7 @@ def show_bsod():
     bsod.configure(bg="#0000AA")
     bsod.overrideredirect(True)
     message = (
-        " :(\n\n"
+        ":(\n\n"
         "Your PC ran into a problem and needs to restart.\n"
         "We're just collecting some error info, and then we'll restart for you.\n\n"
         "STOP CODE: SYSTEM_CRASH_SIMULATION\n\n"
@@ -103,7 +123,7 @@ def show_bsod():
     )
     tk.Label(bsod, text=message, fg="white", bg="#0000AA", font=("Consolas", 28), justify="left").pack(padx=100, pady=100)
 
-# --- SEQUENCE ---
+# --- Sequence ---
 
 def troll_sequence():
     style = ttk.Style()
@@ -114,32 +134,41 @@ def troll_sequence():
 
     title = tk.Label(root, text="VIRUS DETECTED", font=("Courier", 80, "bold"), fg="red", bg="#300000")
     title.pack(pady=60)
-    flash_text(title, ["VIRUS DETECTED", "SYSTEM ANNIHILATED", "DATA OBLITERATED", "FINAL DOOM", "NO ESCAPE"])
+    flash_text(title, ["VIRUS DETECTED", "SYSTEM ANNIHILATED", "DATA DEVASTATED", "TERMINAL COLLAPSE", "ENDGAME"])
 
-    progress_label = tk.Label(root, text="ERASING EVERYTHING...", font=("Courier", 32), fg="red", bg="#300000")
+    warning = tk.Label(root, text="YOUR SYSTEM IS BEING RIPPED APART!", font=("Courier", 40), fg="white", bg="#300000")
+    warning.pack(pady=50)
+    flash_text(warning, ["YOUR SYSTEM IS BEING RIPPED APART!", "ALL HOPE IS GONE!", "DESTRUCTION UNSTOPPABLE!", "FINAL DOOM!"])
+
+    progress_label = tk.Label(root, text="ERADICATING EVERYTHING...", font=("Courier", 32), fg="red", bg="#300000")
     progress_label.pack(pady=25)
     progress = ttk.Progressbar(root, length=800, mode="determinate", maximum=100, style="red.Horizontal.TProgressbar")
     progress.pack(pady=25)
 
     root.after(500, fake_progress, progress)
-    messages = [
-        "CONTAINMENT BREACHED!", "DRIVES DISINTEGRATING...", "MEMORY MELTING!", "NETWORK SHATTERED!", 
-        "CORE FAILURE IMMINENT!", "SHUTDOWN OVERRIDDEN!", "DATA INFINITE SCREAMING!", "HARDWARE BURNOUT!", 
-        "SYSTEM SELF-DESTRUCT ACTIVATED!", "NO ESCAPE!", "COUNTDOWN TO OBLIVION: 10... 9... 8...", 
-        "TERROR ABSOLUTE!", "TOTAL ERADICATION!", "INSANITY OVERLOAD!", "ALL HOPE LOST!", "GAME OVER." 
-    ]
-    delay = 1500
-    for msg in messages:
-        root.after(delay, dramatic_popup, msg, 2000)
-        delay += random.randint(1500, 2500)
-    
-    root.after(delay + 2000, show_bsod)
-    root.after(delay + 5000, shutdown_system)
+    root.after(1000, dramatic_popup, "CONTAINMENT BREACHED!", 1500)
+    root.after(2000, dramatic_popup, "DRIVES DISINTEGRATING...", 2000)
+    root.after(3500, dramatic_popup, "MEMORY MELTING!", 1500)
+    root.after(5000, dramatic_popup, "NETWORK SHATTERED!", 1800)
+    root.after(6500, dramatic_popup, "CRITICAL CORE FAILURE!", 2000)
+    root.after(8500, dramatic_popup, "SHUTDOWN PROTOCOL CORRUPTED!", 1500)
+    root.after(10000, dramatic_popup, "DATA SCREAMING IN AGONY!", 2000)
+    root.after(12000, dramatic_popup, "HARDWARE DISINTEGRATION!", 1800)
+    root.after(14000, dramatic_popup, "FINAL COLLAPSE INITIATED!", 2000)
+    root.after(16000, dramatic_popup, "INSANITY OVERLOAD!", 1500)
+    root.after(18000, dramatic_popup, "SYSTEM DEVOURING ITSELF!", 2000)
+    root.after(20000, dramatic_popup, "NO ESCAPE DETECTED!", 1800)
+    root.after(22000, dramatic_popup, "TERMINATION IN 5...4...3...", 2000)
+    root.after(25000, dramatic_popup, "ALL IS LOST FOREVER!", 2500)
+    root.after(28000, dramatic_popup, "ANNIHILATION COMPLETE", 2000)
+    root.after(1000, spawn_error_message)  # Start spamming error messages early
+    root.after(30000, show_bsod)
+    root.after(35000, shutdown_system)
 
 def shutdown_system():
     unlock_input()
     if os.name == "nt":
-        os.system("shutdown /s /t 10 /f")
+        os.system("shutdown /s /t 5 /f")  # Force shutdown in 5 seconds
 
 # --- START ---
 
