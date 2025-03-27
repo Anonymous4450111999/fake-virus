@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 import time
 import random
 import os
@@ -23,7 +23,6 @@ root.attributes("-fullscreen", True)
 root.configure(bg="#300000")
 root.overrideredirect(True)
 
-# Block escape keys
 root.protocol("WM_DELETE_WINDOW", lambda: None)
 root.bind("<Control-c>", lambda e: None)
 root.bind("<Alt-F4>", lambda e: None)
@@ -53,17 +52,17 @@ def shake_window():
 def play_terrifying_sound():
     if os.name == "nt":
         def sound_horror():
-            for _ in range(20):
-                winsound.Beep(random.randint(800, 2500), random.randint(50, 200))
-                time.sleep(random.uniform(0.01, 0.08))
-            for _ in range(10):
-                winsound.Beep(random.randint(80, 300), 400)
-                winsound.Beep(random.randint(1000, 2000), 50)
+            for _ in range(60):
+                winsound.Beep(random.randint(800, 2500), random.randint(100, 300))
+                time.sleep(random.uniform(0.01, 0.1))
+            for _ in range(30):
+                winsound.Beep(random.randint(80, 300), 600)
+                winsound.Beep(random.randint(1000, 2000), 100)
                 time.sleep(random.uniform(0.05, 0.2))
-            for _ in range(15):
-                winsound.Beep(random.randint(50, 1500), random.randint(100, 500))
+            for _ in range(45):
+                winsound.Beep(random.randint(50, 1500), random.randint(200, 600))
                 time.sleep(random.uniform(0.02, 0.1))
-            winsound.Beep(60, 2000)
+            winsound.Beep(60, 4000)
         threading.Thread(target=sound_horror, daemon=True).start()
 
 def fake_progress(progress, value=0):
@@ -86,6 +85,26 @@ def dramatic_popup(message, delay):
         bg="#300000"
     ).pack(pady=100)
     popup.after(delay, popup.destroy)
+
+# --- Windows Error Message Meme ---
+
+def spawn_error_message():
+    def error_box():
+        while True:
+            try:
+                x = random.randint(0, root.winfo_screenwidth() - 200)
+                y = random.randint(0, root.winfo_screenheight() - 100)
+                msg = tk.Toplevel(root)
+                msg.geometry(f"200x100+{x}+{y}")
+                msg.overrideredirect(True)
+                msg.configure(bg="white")
+                tk.Label(msg, text="❌ Critical Error", fg="black", bg="white", font=("Arial", 10, "bold")).pack(pady=10)
+                msg.after(1500, msg.destroy)
+                winsound.PlaySound("SystemHand", winsound.SND_ALIAS | winsound.SND_ASYNC)
+                time.sleep(random.uniform(0.1, 0.3))
+            except:
+                break
+    threading.Thread(target=error_box, daemon=True).start()
 
 # --- FAKE BSOD ---
 
@@ -142,6 +161,7 @@ def troll_sequence():
     root.after(22000, dramatic_popup, "TERMINATION IN 5...4...3...", 2000)
     root.after(25000, dramatic_popup, "ALL IS LOST FOREVER!", 2500)
     root.after(28000, dramatic_popup, "ANNIHILATION COMPLETE", 2000)
+    root.after(1000, spawn_error_message)  # Start spamming error messages early
     root.after(30000, show_bsod)
     root.after(35000, shutdown_system)
 
@@ -158,3 +178,4 @@ def start():
 
 start()
 root.mainloop()
+
